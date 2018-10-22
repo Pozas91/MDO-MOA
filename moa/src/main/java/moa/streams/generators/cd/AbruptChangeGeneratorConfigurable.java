@@ -21,14 +21,22 @@ package moa.streams.generators.cd;
 
 import com.github.javacliparser.FloatOption;
 
-public class AbruptChangeGenerator extends AbstractConceptDriftGenerator {
+public class AbruptChangeGeneratorConfigurable extends AbstractConceptDriftGenerator {
+
+    public FloatOption initialErrorLevel = new FloatOption(
+            "initialErrorLevel", 's', "Error level in first concept",
+            0.2, 0.0, 1.0);
+
+    public FloatOption finalErrorLevel = new FloatOption(
+            "finalErrorLevel", 'd', "Error level in first concept",
+            0.8, 0.0, 1.0);
 
     @Override
     protected double nextValue() {
         double res;
         double t = this.numInstances % this.period;
-        this.change = (t == this.period / 2) ? true : false;
-        res = (t < this.period / 2) ? .2 : .8;
+        this.change = (t == (this.period / 2));
+        res = (t < (this.period / 2)) ? initialErrorLevel.getValue() : finalErrorLevel.getValue();
         return res;
     }
 }
