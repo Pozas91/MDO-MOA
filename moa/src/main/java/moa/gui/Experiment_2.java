@@ -12,9 +12,9 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class Experiment2 {
+public class Experiment_2 {
 
-    public Experiment2() {
+    public Experiment_2() {
     }
 
     public void run(int numInstances, boolean isTesting, int testingUntil) {
@@ -31,6 +31,9 @@ public class Experiment2 {
         boolean preciseCPUTiming = TimingUtils.enablePreciseTiming();
         long evaluateStartTime = TimingUtils.getNanoCPUTimeOfCurrentThread();
 
+        /**
+         * Primero entreno con él número indicado de instancias
+         */
         while (stream.hasMoreInstances() && numberSamples < numInstances) {
             Instance trainInst = stream.nextInstance().getData();
             learner.trainOnInstance(trainInst);
@@ -40,6 +43,9 @@ public class Experiment2 {
 
         int numberOfSamplesToTesting = 0;
 
+        /**
+         * Después si está activado el testing, empezamos a testear hasta que consigamos 100 aciertos seguidos.
+         */
         if (isTesting) {
             // Create iterator of instances.
             Iterator<Instance> iterator = instancesToTest.iterator();
@@ -61,13 +67,17 @@ public class Experiment2 {
             }
         }
 
+        /**
+         * El problema es que cuando salga del bucle, siempre va a valer 'testingUntil' que es igual a 100.
+         * Y por tanto, la precisión siempre será del 0.01
+         */
         double accuracy = 100.0 * (double) numberSamplesCorrect / (double) numberOfSamplesToTesting;
         double time = TimingUtils.nanoTimeToSeconds(TimingUtils.getNanoCPUTimeOfCurrentThread() - evaluateStartTime);
         System.out.println(numberSamples + " instances processed with " + accuracy + "% accuracy in " + time + " seconds.");
     }
 
     public static void main(String[] args) throws IOException {
-        Experiment2 exp = new Experiment2();
+        Experiment_2 exp = new Experiment_2();
         exp.run(10000, true, 100);
     }
 }
