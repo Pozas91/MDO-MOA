@@ -48,7 +48,7 @@ public class AbruptChangeGeneratorConfigurableWithNoise extends AbstractConceptD
         this.change = (t == (this.period / 2));
         res = (t < (this.period / 2)) ? initialErrorLevel.getValue() : finalErrorLevel.getValue();
 
-        // If random apply, changes values
+        // Si se cumple el nivel de ruido, intercambiamos el valor alto por el bajo, y viceversa.
         if (randomNumber <= noiseLevel.getValue()) {
             res = (res == initialErrorLevel.getValue()) ? finalErrorLevel.getValue() : initialErrorLevel.getValue();
         }

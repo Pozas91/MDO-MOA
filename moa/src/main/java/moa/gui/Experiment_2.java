@@ -7,9 +7,6 @@ import moa.core.TimingUtils;
 import moa.streams.generators.LEDGenerator;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 
 public class Experiment_2 {
@@ -25,53 +22,41 @@ public class Experiment_2 {
         learner.setModelContext(stream.getHeader());
         learner.prepareForUse();
 
-        int numberSamplesCorrect = 0;
         int numberSamples = 0;
-        List<Instance> instancesToTest = new ArrayList<>();
         boolean preciseCPUTiming = TimingUtils.enablePreciseTiming();
         long evaluateStartTime = TimingUtils.getNanoCPUTimeOfCurrentThread();
 
-        /**
-         * Primero entreno con él número indicado de instancias
+        /*
+          Primero entreno con él número indicado de instancias
          */
         while (stream.hasMoreInstances() && numberSamples < numInstances) {
             Instance trainInst = stream.nextInstance().getData();
             learner.trainOnInstance(trainInst);
-            instancesToTest.add(trainInst);
             numberSamples++;
         }
 
-        int numberOfSamplesToTesting = 0;
+        int numberOfSamplesTested = 0;
+        int numberSamplesCorrect = 0;
 
-        /**
-         * Después si está activado el testing, empezamos a testear hasta que consigamos 100 aciertos seguidos.
+        /*
+          Después si está activado el testing, empezamos a testear hasta que consigamos 100 aciertos seguidos.
          */
         if (isTesting) {
-            // Create iterator of instances.
-            Iterator<Instance> iterator = instancesToTest.iterator();
-
-            while (iterator.hasNext() && numberSamplesCorrect < testingUntil) {
+            while (stream.hasMoreInstances() && numberSamplesCorrect < testingUntil) {
                 // Get next instance.
-                Instance instance = iterator.next();
+                Instance instance = stream.nextInstance().getData();
 
                 if (learner.correctlyClassifies(instance)) {
                     // If is correct, accumulate.
                     numberSamplesCorrect++;
-                } else {
-                    // If not reset numberSamplesCorrect.
-                    numberSamplesCorrect = 0;
                 }
 
                 // Accumulate number of samples necessary.
-                numberOfSamplesToTesting++;
+                numberOfSamplesTested++;
             }
         }
 
-        /**
-         * El problema es que cuando salga del bucle, siempre va a valer 'testingUntil' que es igual a 100.
-         * Y por tanto, la precisión siempre será del 0.01
-         */
-        double accuracy = 100.0 * (double) numberSamplesCorrect / (double) numberOfSamplesToTesting;
+        double accuracy = 100.0 * (double) numberSamplesCorrect / (double) numberOfSamplesTested;
         double time = TimingUtils.nanoTimeToSeconds(TimingUtils.getNanoCPUTimeOfCurrentThread() - evaluateStartTime);
         System.out.println(numberSamples + " instances processed with " + accuracy + "% accuracy in " + time + " seconds.");
     }
